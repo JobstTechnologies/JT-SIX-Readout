@@ -1,0 +1,252 @@
+object MainForm: TMainForm
+  Left = 420
+  Height = 326
+  Top = 178
+  Width = 307
+  AllowDropFiles = True
+  Caption = 'JT SIX Readout'
+  ClientHeight = 306
+  ClientWidth = 307
+  Color = clWindow
+  Menu = MainMenu
+  OnClose = FormClose
+  OnCreate = FormCreate
+  OnDropFiles = FormDropFiles
+  Position = poDefaultPosOnly
+  LCLVersion = '2.0.12.0'
+  object StatusGB: TGroupBox
+    Left = 144
+    Height = 294
+    Top = 4
+    Width = 156
+    Caption = 'Status Info'
+    ClientHeight = 274
+    ClientWidth = 152
+    TabOrder = 0
+    object IndicatorSensorP: TPanel
+      Left = 8
+      Height = 43
+      Top = 0
+      Width = 136
+      BevelOuter = bvNone
+      ParentBackground = False
+      ParentColor = False
+      ParentFont = False
+      ParentShowHint = False
+      ShowHint = True
+      TabOrder = 1
+    end
+    object ConnComPortSensLE: TLabeledEdit
+      Left = 7
+      Height = 23
+      Top = 72
+      Width = 137
+      Alignment = taCenter
+      Color = clHighlight
+      EditLabel.Height = 15
+      EditLabel.Width = 137
+      EditLabel.Caption = 'Connected Port'
+      EditLabel.ParentColor = False
+      EditLabel.ParentFont = False
+      ParentFont = False
+      ParentShowHint = False
+      ReadOnly = True
+      TabOrder = 0
+      Text = 'Not connected'
+    end
+    object StartTimeLE: TLabeledEdit
+      Left = 7
+      Height = 23
+      Hint = 'Time when ''Start'' was pressed'
+      Top = 197
+      Width = 136
+      EditLabel.Height = 15
+      EditLabel.Width = 136
+      EditLabel.Caption = 'Start Time'
+      EditLabel.ParentColor = False
+      EditLabel.ParentFont = False
+      ParentFont = False
+      ParentShowHint = False
+      ReadOnly = True
+      ShowHint = True
+      TabOrder = 2
+    end
+    object StopTimeLE: TLabeledEdit
+      Left = 7
+      Height = 23
+      Hint = 'Time when ''Stop'' was pressed'
+      Top = 242
+      Width = 136
+      EditLabel.Height = 15
+      EditLabel.Width = 136
+      EditLabel.Caption = 'Stop Time'
+      EditLabel.ParentColor = False
+      EditLabel.ParentFont = False
+      ParentFont = False
+      ParentShowHint = False
+      ReadOnly = True
+      ShowHint = True
+      TabOrder = 3
+    end
+    object LoadedFileSensM: TMemo
+      Left = 8
+      Height = 40
+      Hint = 'No data storage file selected'
+      Top = 122
+      Width = 136
+      Alignment = taCenter
+      Lines.Strings = (
+        'None'
+      )
+      ParentShowHint = False
+      ReadOnly = True
+      ShowHint = True
+      TabOrder = 4
+    end
+    object Label66: TLabel
+      Left = 7
+      Height = 15
+      Top = 104
+      Width = 86
+      Caption = 'Sensor Data File '
+      ParentColor = False
+    end
+  end
+  object SIXConnectionGB: TGroupBox
+    Left = 8
+    Height = 112
+    Top = 4
+    Width = 128
+    Caption = 'SIX Connection'
+    ClientHeight = 92
+    ClientWidth = 124
+    TabOrder = 1
+    object StartButtonBB: TBitBtn
+      Left = 16
+      Height = 37
+      Hint = 'Connects to the SIX device,'#13#10'asks for a file to store the data'#13#10'and starts the readout'
+      Top = 4
+      Width = 92
+      Caption = '&Start'
+      Kind = bkOK
+      ModalResult = 1
+      OnClick = StartButtonBBClick
+      ParentShowHint = False
+      ShowHint = True
+      TabOrder = 0
+    end
+    object StopButtonBB: TBitBtn
+      Left = 16
+      Height = 37
+      Hint = 'Stops the data readout and'#13#10'closes connection to the SIX'
+      Top = 48
+      Width = 92
+      Caption = 'S&top'
+      Enabled = False
+      Kind = bkAbort
+      ModalResult = 3
+      OnClick = StopButtonBBClick
+      ParentShowHint = False
+      ShowHint = True
+      TabOrder = 1
+    end
+  end
+  object DefinitionGB: TGroupBox
+    Left = 8
+    Height = 108
+    Top = 190
+    Width = 128
+    Caption = 'Sensor Definition File'
+    ClientHeight = 88
+    ClientWidth = 124
+    ParentShowHint = False
+    TabOrder = 2
+    object LoadDefBB: TBitBtn
+      Left = 6
+      Height = 31
+      Hint = 'To get the output in mmol/l'#13#10'you must load a definition file.'
+      Top = 3
+      Width = 112
+      Caption = 'Load File'
+      OnClick = LoadDefBBClick
+      ParentShowHint = False
+      ShowHint = True
+      TabOrder = 0
+    end
+    object LoadedDefFileLE: TLabeledEdit
+      Left = 6
+      Height = 23
+      Top = 56
+      Width = 112
+      Alignment = taCenter
+      EditLabel.Height = 15
+      EditLabel.Width = 112
+      EditLabel.Caption = 'Loaded File '
+      EditLabel.ParentColor = False
+      TabOrder = 1
+      Text = 'None'
+    end
+  end
+  object SIXTypeRG: TRadioGroup
+    Left = 8
+    Height = 64
+    Hint = 'Maximal current representation'#13#10'of the connected SIX device'
+    Top = 120
+    Width = 128
+    AutoFill = True
+    Caption = 'SIX Type'
+    ChildSizing.LeftRightSpacing = 6
+    ChildSizing.EnlargeHorizontal = crsHomogenousChildResize
+    ChildSizing.EnlargeVertical = crsHomogenousChildResize
+    ChildSizing.ShrinkHorizontal = crsScaleChilds
+    ChildSizing.ShrinkVertical = crsScaleChilds
+    ChildSizing.Layout = cclLeftToRightThenTopToBottom
+    ChildSizing.ControlsPerLine = 1
+    ClientHeight = 44
+    ClientWidth = 124
+    ItemIndex = 1
+    Items.Strings = (
+      '25 nA'
+      '50 nA'
+    )
+    ParentShowHint = False
+    ShowHint = True
+    TabOrder = 3
+  end
+  object MainMenu: TMainMenu
+    Left = 104
+    Top = 232
+    object AboutMI: TMenuItem
+      Caption = 'About'
+      OnClick = AboutMIClick
+    end
+  end
+  object COMConnect: TLazSerial
+    Active = False
+    BaudRate = br__1200
+    DataBits = db8bits
+    Parity = pNone
+    FlowControl = fcNone
+    StopBits = sbOne
+    Device = 'COM1'
+    RcvLineCRLF = False
+    Left = 240
+    Top = 240
+  end
+  object SaveDialog: TSaveDialog
+    Filter = 'Pump Driver Actions|*.PDAction'
+    Left = 112
+    Top = 120
+  end
+  object ReadTimer: TTimer
+    Enabled = False
+    Interval = 1700
+    OnTimer = ReadTimerTimerFinished
+    Left = 176
+    Top = 184
+  end
+  object OpenDialog: TOpenDialog
+    Left = 240
+    Top = 184
+  end
+end

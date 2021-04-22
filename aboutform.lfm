@@ -1,0 +1,75 @@
+object AboutFormF: TAboutFormF
+  Left = 645
+  Height = 266
+  Top = 316
+  Width = 339
+  Caption = 'About JT SIX Readout'
+  ClientHeight = 266
+  ClientWidth = 339
+  Position = poMainFormCenter
+  LCLVersion = '2.0.12.0'
+  object SourceCodeText: TLabel
+    Left = 16
+    Height = 15
+    Top = 192
+    Width = 141
+    Caption = 'Source code is available at:'
+    ParentColor = False
+  end
+  object GitHubLink: TLabel
+    Cursor = crHandPoint
+    Left = 16
+    Height = 15
+    Top = 208
+    Width = 288
+    Caption = 'https://github.com/JobstTechnologies/JT-SIX-Readout'
+    Font.Color = clHighlight
+    Font.Style = [fsUnderline]
+    ParentColor = False
+    ParentFont = False
+    OnClick = GitHubLinkClick
+  end
+  object BitBtn1: TBitBtn
+    Left = 128
+    Height = 24
+    Top = 232
+    Width = 65
+    Default = True
+    DefaultCaption = True
+    Kind = bkOK
+    ModalResult = 1
+    TabOrder = 0
+  end
+  object UsageText: TStaticText
+    Left = 16
+    Height = 110
+    Top = 72
+    Width = 288
+    Caption = 'Usage:'#13#10'- connect the SIX device to the PC'#13#10'- if you need the output in mmol/l, load a sensor'#13#10'   definition file'#13#10'- click on the Start button. This opens dialogs to'#13#10'  - select the COM port of the SIX'#13#10'  - a file in which the data will be stored'
+    TabOrder = 1
+  end
+  object Label1: TLabel
+    Left = 16
+    Height = 15
+    Top = 13
+    Width = 117
+    Caption = 'JT SIX Readout version'
+    ParentColor = False
+  end
+  object VersionNumber: TLabel
+    Left = 140
+    Height = 15
+    Top = 13
+    Width = 82
+    Caption = 'VersionNumber'
+    ParentColor = False
+  end
+  object DescriptionText: TStaticText
+    Left = 16
+    Height = 32
+    Top = 32
+    Width = 312
+    Caption = 'Program to readout data from a SIX measurement device.'#13#10'The data will be stored in a CSV file of your choice.'
+    TabOrder = 2
+  end
+end

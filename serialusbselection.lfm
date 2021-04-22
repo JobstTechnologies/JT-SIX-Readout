@@ -1,0 +1,54 @@
+object SerialUSBSelectionF: TSerialUSBSelectionF
+  Left = 703
+  Height = 119
+  Top = 304
+  Width = 259
+  Caption = 'Serial port selection'
+  ClientHeight = 119
+  ClientWidth = 259
+  Position = poMainFormCenter
+  LCLVersion = '2.1.0.0'
+  object SerialUSBPortL: TLabel
+    Left = 16
+    Height = 15
+    Top = 19
+    Width = 77
+    Caption = 'Serial USB Port'
+    ParentColor = False
+    ParentFont = False
+  end
+  object SerialUSBPortCB: TComboBox
+    Left = 104
+    Height = 23
+    Hint = 'Select the COM port of the pump driver board'
+    Top = 16
+    Width = 135
+    ItemHeight = 15
+    ParentFont = False
+    ParentShowHint = False
+    ShowHint = True
+    TabOrder = 0
+  end
+  object OKButtonB: TButton
+    Left = 32
+    Height = 37
+    Top = 59
+    Width = 81
+    Caption = 'Connect'
+    Default = True
+    OnClick = OKButtonBClick
+    ParentFont = False
+    TabOrder = 1
+  end
+  object CancelButtonB: TButton
+    Left = 128
+    Height = 38
+    Hint = 'Cancel the connection'
+    Top = 58
+    Width = 81
+    Caption = 'Disconnect'
+    OnClick = CancelButtonBClick
+    ParentFont = False
+    TabOrder = 2
+  end
+end
