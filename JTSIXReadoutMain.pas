@@ -58,7 +58,7 @@ type
 
 var
   MainForm : TMainForm;
-  Version : string = '1.00';
+  Version : string = '1.01';
   serSensor: TBlockSerial;
   timeCounter : double = 0.0; // counter of the overall SIX signal time in min
   signalCounter : integer = 0; // counter of the overall SIX readouts
@@ -76,6 +76,8 @@ var
   Subtracts : array [1..6] of integer; // the channel subtracts
   TemperGains : array [1..8] of double; // the temperature gains
   NumChannels : integer = 6; // number of channels
+  ErrorCount : integer = 0; // counts how many times we did not reeive a stop bit
+  wasNoStopByte : Boolean = false; // to catch the case no stop byte was sent
 
 implementation
 
@@ -204,6 +206,7 @@ var
  tempInt16 : Int16;
  PintegerArray: PintArray;
  wasRead : Boolean = false;
+ SingleByte : byte;
 begin
  // say the OS the application is alive
  Application.ProcessMessages;
@@ -232,6 +235,36 @@ begin
  end;
 
  try
+  // in case we need to re-sync we must readout as many bytes until we get a
+  // stop byte again
+  if wasNoStopByte then
+  begin
+   SingleByte:= $1;
+   i:= 0;
+   // look for a stp byte in the next 100 bytes
+   while (SingleByte <> $16) and (i < 101) do
+   begin
+    SingleByte:= COMConnect.SynSer.RecvByte(100);
+    inc(i);
+   end;
+   wasNoStopByte:= false;
+   if i > 100 then // no stopy byte within 100 bytes, so there is a severe problem
+   begin
+    ReadTimer.Enabled:= False;
+    MessageDlgPos('The received last 100 bytes do not contain a stop bit.'
+    + LineEnding + 'Try to reconnect to the SIX.',
+    mtError, [mbOK], 0, MousePointer.X, MousePointer.Y);
+    ConnComPortSensLE.Color:= clRed;
+    IndicatorSensorP.Caption:= 'SIX error';
+    IndicatorSensorP.Color:= clRed;
+    StartButtonBB.Enabled:= true;
+    StopButtonBB.Enabled:= false;
+    CloseLazSerialConn(MousePointer);
+    HaveSerialSensor:= False;
+    exit;
+   end;
+  end;
+
   // check if there are 25 bytes available to be read
   // if not wait until the timer finished the next time
   if COMConnect.SynSer.WaitingDataEx < 25 then
@@ -292,21 +325,32 @@ begin
  // in case the read failed or not 25 bytes received
  if (COMConnect.SynSer.LastError <> 0) or (k <> 25) then
  begin
-  ReadTimer.Enabled:= False;
-  if COMConnect.SynSer.LastError <> 0 then
-   MessageDlgPos(ConnComPortSensLE.Text + ' error on reading signal data: '
-    + COMConnect.SynSer.LastErrorDesc, mtError, [mbOK], 0, MousePointer.X, MousePointer.Y)
+  inc(ErrorCount);
+  // we wait then another timer run
+  // if we get 3 times the same error, something is wrong and we must stop
+  if ErrorCount < 4 then
+  begin
+   timeCounter:= timeCounter + 0.02833; // 1.7 s of the timer in min
+   exit;
+  end
   else
-   MessageDlgPos('Error: Could not read 25 bytes. Got only ' + IntToStr(k) + ' bytes.',
+  begin
+   ReadTimer.Enabled:= False;
+   if COMConnect.SynSer.LastError <> 0 then
+    MessageDlgPos(ConnComPortSensLE.Text + ' error on reading signal data: '
+     + COMConnect.SynSer.LastErrorDesc, mtError, [mbOK], 0, MousePointer.X, MousePointer.Y)
+   else
+    MessageDlgPos('Error: Could not read 25 bytes. Got only ' + IntToStr(k) + ' bytes.',
     mtError, [mbOK], 0, MousePointer.X, MousePointer.Y);
-  ConnComPortSensLE.Color:= clRed;
-  IndicatorSensorP.Caption:= 'SIX error';
-  IndicatorSensorP.Color:= clRed;
-  StartButtonBB.Enabled:= true;
-  StopButtonBB.Enabled:= false;
-  CloseLazSerialConn(MousePointer);
-  HaveSerialSensor:= False;
-  exit;
+   ConnComPortSensLE.Color:= clRed;
+   IndicatorSensorP.Caption:= 'SIX error';
+   IndicatorSensorP.Color:= clRed;
+   StartButtonBB.Enabled:= true;
+   StopButtonBB.Enabled:= false;
+   CloseLazSerialConn(MousePointer);
+   HaveSerialSensor:= False;
+   exit;
+  end;
  end;
 
  // now search the byte array for the stop bit
@@ -321,19 +365,40 @@ begin
  end;
  if StopPos = -1 then
  begin
-  ReadTimer.Enabled:= False;
-  MessageDlgPos('The received data does not contain a stop bit.'
-   + LineEnding + 'It seems you use a wrong device and not a SIX.',
-   mtError, [mbOK], 0, MousePointer.X, MousePointer.Y);
-  ConnComPortSensLE.Color:= clRed;
-  IndicatorSensorP.Caption:= 'Wrong device';
-  IndicatorSensorP.Color:= clRed;
-  StartButtonBB.Enabled:= true;
-  StopButtonBB.Enabled:= false;
-  CloseLazSerialConn(MousePointer);
-  HaveSerialSensor:= False;
-  exit;
+  inc(ErrorCount);
+  // the read data block sometimes misses the stop bit
+  // usually the stop bit appears again within the next readout, but not at the
+  // expected position
+  // to re-sync then with the SIX, wait one interval and read out all byte by
+  // byte until a stop byte appears
+  wasNoStopByte:= true;
+  // however, if we cannot re-sync after 3 attempts, something is wrong with the
+  // SIX and we must stop
+  if ErrorCount < 4 then
+  begin
+   timeCounter:= timeCounter + 0.02833; // 1.7 s of the timer in min
+   exit;
+  end
+  else
+  begin
+   ReadTimer.Enabled:= False;
+   MessageDlgPos('The received last 300 bytes do not contain a stop bit.'
+    + LineEnding + 'Try to reconnect to the SIX.',
+    mtError, [mbOK], 0, MousePointer.X, MousePointer.Y);
+   ConnComPortSensLE.Color:= clRed;
+   IndicatorSensorP.Caption:= 'SIX error';
+   IndicatorSensorP.Color:= clRed;
+   StartButtonBB.Enabled:= true;
+   StopButtonBB.Enabled:= false;
+   CloseLazSerialConn(MousePointer);
+   HaveSerialSensor:= False;
+   exit;
+  end;
  end;
+
+ // reset counter since we got no error
+ ErrorCount:= 0;
+
  // if StopPos > 19 we have all relevant data before
  // so transform the dataArray accordingly
  if StopPos > 19 then

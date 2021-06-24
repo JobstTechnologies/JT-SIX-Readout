@@ -2,5 +2,6 @@ Changes
 
 from version 1.00 to 1.01
 
-bugfixes:
-- none yet
+improvement:
+- more stable data readout: higher redundancy in case of
+   missing signal data
