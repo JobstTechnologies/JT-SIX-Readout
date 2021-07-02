@@ -7,7 +7,7 @@ interface
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, ComCtrls, Menus,
   StdCtrls, ExtCtrls, Buttons, LCLType, Registry, LazFileUtils,
-  SynaSer, LazSerial, Crt, UITypes, SpinEx, Types, Streamex,
+  SynaSer, Crt, UITypes, Types, Streamex,
   // the custom forms
   SerialUSBSelection, AboutForm;
 
@@ -32,7 +32,6 @@ type
     LoadedFileSensM: TMemo;
     StartTimeLE: TLabeledEdit;
     StatusGB: TGroupBox;
-    COMConnect: TLazSerial;
     SaveDialog: TSaveDialog;
     AboutMI: TMenuItem;
     MainMenu: TMainMenu;
@@ -58,7 +57,7 @@ type
 
 var
   MainForm : TMainForm;
-  Version : string = '1.01';
+  Version : string = '1.02';
   serSensor: TBlockSerial;
   timeCounter : double = 0.0; // counter of the overall SIX signal time in min
   signalCounter : integer = 0; // counter of the overall SIX readouts
@@ -99,14 +98,13 @@ procedure TMainForm.FormClose(Sender: TObject);
 begin
  // stop SIX reader timer
  ReadTimer.Enabled:= False;
- if HaveSerialSensor then
-  try
-   // Close the connection
-   COMConnect.Close;
-  except
-   MessageDlgPos('Error: ' + COMPort + ' cannot be closed.',
-    mtError, [mbOK], 0, 20, 20);
-  end;
+ if HaveSerialSensor and (serSensor.LastError <> 9997) then
+ // we cannot close socket or free when the connection timed out
+ begin
+  serSensor.CloseSocket;
+  serSensor.free;
+  HaveSerialSensor:= False;
+ end;
  if HaveSensorFileStream then
   SensorFileStream.Free;
 end;
@@ -244,7 +242,7 @@ begin
    // look for a stp byte in the next 100 bytes
    while (SingleByte <> $16) and (i < 101) do
    begin
-    SingleByte:= COMConnect.SynSer.RecvByte(100);
+    SingleByte:= serSensor.RecvByte(100);
     inc(i);
    end;
    wasNoStopByte:= false;
@@ -267,7 +265,7 @@ begin
 
   // check if there are 25 bytes available to be read
   // if not wait until the timer finished the next time
-  if COMConnect.SynSer.WaitingDataEx < 25 then
+  if serSensor.WaitingDataEx < 25 then
   begin
    // take the time passed until the timer was triggered
    timeCounter:= timeCounter + 0.02833; // 1.7 s of the timer in min
@@ -277,13 +275,13 @@ begin
     // often the SIX only stops telling it has not enough data
     // to try to read data
     try
-     k:= MainForm.COMConnect.SynSer.RecvBufferEx(@dataArray[0], 25, 100);
+     k:= serSensor.RecvBufferEx(@dataArray[0], 25, 100);
      wasRead:= true;
     finally
      if k <> 25 then
      begin
-      MainForm.ReadTimer.Enabled:= false;
-      MessageDlgPos('Error: ' + MainForm.ConnComPortSensLE.Text +
+      ReadTimer.Enabled:= false;
+      MessageDlgPos('Error: ' + ConnComPortSensLE.Text +
        ' did not deliver data within 5.1 s.',
        mtError, [mbOK], 0, MousePointer.X, MousePointer.Y);
       ReadTimer.Enabled:= false;
@@ -302,11 +300,11 @@ begin
     exit;
   end;
  finally
-  if COMConnect.SynSer.LastError <> 0 then // occurs of USB cable was removed
+  if serSensor.LastError <> 0 then // occurs of USB cable was removed
   begin
    ReadTimer.Enabled:= False;
    MessageDlgPos(ConnComPortSensLE.Text + ' error on connecting to SIX: '
-    + COMConnect.SynSer.LastErrorDesc, mtError, [mbOK], 0, MousePointer.X, MousePointer.Y);
+    + serSensor.LastErrorDesc, mtError, [mbOK], 0, MousePointer.X, MousePointer.Y);
    ConnComPortSensLE.Color:= clRed;
    IndicatorSensorP.Caption:= 'Check USB cable';
    IndicatorSensorP.Color:= clRed;
@@ -320,10 +318,10 @@ begin
 
  // read the data
  if not wasRead then
-  k:= COMConnect.SynSer.RecvBufferEx(@dataArray[0], 25, 100);
+  k:= serSensor.RecvBufferEx(@dataArray[0], 25, 100);
 
  // in case the read failed or not 25 bytes received
- if (COMConnect.SynSer.LastError <> 0) or (k <> 25) then
+ if (serSensor.LastError <> 0) or (k <> 25) then
  begin
   inc(ErrorCount);
   // we wait then another timer run
@@ -336,9 +334,9 @@ begin
   else
   begin
    ReadTimer.Enabled:= False;
-   if COMConnect.SynSer.LastError <> 0 then
+   if serSensor.LastError <> 0 then
     MessageDlgPos(ConnComPortSensLE.Text + ' error on reading signal data: '
-     + COMConnect.SynSer.LastErrorDesc, mtError, [mbOK], 0, MousePointer.X, MousePointer.Y)
+     + serSensor.LastErrorDesc, mtError, [mbOK], 0, MousePointer.X, MousePointer.Y)
    else
     MessageDlgPos('Error: Could not read 25 bytes. Got only ' + IntToStr(k) + ' bytes.',
     mtError, [mbOK], 0, MousePointer.X, MousePointer.Y);
@@ -588,16 +586,19 @@ begin
   ConnComPortSensLE.Color:= clHighlight;
   // open the connection
   try
-   COMConnect.Device:= COMPort;
-   COMConnect.Open;
+   serSensor:= TBlockSerial.Create;
+   serSensor.DeadlockTimeout:= 10000; // set timeout to 10 s
+   serSensor.Connect(COMPort);
+   // the connection settings must be after the opening
+   serSensor.config(9600, 8, 'N', SB1, False, False);
   except
    exit;
   end;
   HaveSerialSensor:= True;
  finally
-  if COMConnect.SynSer.LastError <> 0 then // output the error
+  if serSensor.LastError <> 0 then // output the error
   begin
-   MessageDlgPos(ConnComPortSensLE.Text + ' error: ' + COMConnect.SynSer.LastErrorDesc,
+   MessageDlgPos(ConnComPortSensLE.Text + ' error: ' + serSensor.LastErrorDesc,
     mtError, [mbOK], 0, MousePointer.X, MousePointer.Y);
    IndicatorSensorP.Caption:= 'Connection failiure';
    IndicatorSensorP.Color:= clRed;
@@ -615,12 +616,9 @@ begin
  IndicatorSensorP.Color:= clDefault;
 
  // read out some data as test
-
- COMConnect.SynSer.config(9600, 8, 'N', SB1, False, False);
-
  // first wait until we get bytes to read
  k:= 0;
- while COMConnect.SynSer.WaitingDataEx < 25 do
+ while serSensor.WaitingDataEx < 25 do
  begin
   delay(100);
   inc(k);
@@ -638,13 +636,13 @@ begin
  end;
 
  // read now 25 bytes
- k:= COMConnect.SynSer.RecvBufferEx(@dataArray[0], 25, 50);
+ k:= serSensor.RecvBufferEx(@dataArray[0], 25, 50);
 
  // in case the read failed or not 25 bytes received
- if (COMConnect.SynSer.LastError <> 0) or (k <> 25) then
+ if (serSensor.LastError <> 0) or (k <> 25) then
  begin
   MessageDlgPos(COMPort + ' error on reading 25 bytes: '
-   + COMConnect.SynSer.LastErrorDesc, mtError, [mbOK], 0, MousePointer.X, MousePointer.Y);
+   + serSensor.LastErrorDesc, mtError, [mbOK], 0, MousePointer.X, MousePointer.Y);
   ConnComPortSensLE.Color:= clRed;
   IndicatorSensorP.Caption:= 'Wrong device';
   IndicatorSensorP.Color:= clRed;
@@ -770,20 +768,23 @@ begin
   SensorFileStream.Free;
   HaveSensorFileStream:= false;
  end;
- if COMConnect.SynSer.LastError = 9997 then
-  exit; // we cannot close socket or free when the connection timed out
- try
-  // Close the connection
-  COMConnect.Close;
-  if COMConnect.SynSer.LastError = 9997 then
-   exit; // we cannot close socket or free when the connection timed out
- except
+ if serSensor.LastError = 9997 then
+ begin
+  // we cannot close socket or free when the connection timed out
   MessageDlgPos('Error: ' + COMPort + ' cannot be closed.',
   mtError, [mbOK], 0, MousePointer.X, MousePointer.Y);
   ConnComPortSensLE.Text:= 'Not acessible';
   ConnComPortSensLE.Color:= clRed;
   exit;
  end;
+ if HaveSerialSensor then
+ begin
+  // close connection
+  serSensor.CloseSocket;
+  serSensor.free;
+  HaveSerialSensor:= False;
+ end;
+
  ConnComPortSensLE.Text:= 'Not connected';
  ConnComPortSensLE.Color:= clHighlight;
  StopButtonBB.Enabled:= false;

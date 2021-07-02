@@ -214,24 +214,12 @@ object MainForm: TMainForm
     TabOrder = 3
   end
   object MainMenu: TMainMenu
-    Left = 104
-    Top = 232
+    Left = 208
+    Top = 240
     object AboutMI: TMenuItem
       Caption = 'About'
       OnClick = AboutMIClick
     end
-  end
-  object COMConnect: TLazSerial
-    Active = False
-    BaudRate = br__1200
-    DataBits = db8bits
-    Parity = pNone
-    FlowControl = fcNone
-    StopBits = sbOne
-    Device = 'COM1'
-    RcvLineCRLF = False
-    Left = 240
-    Top = 240
   end
   object SaveDialog: TSaveDialog
     Filter = 'Pump Driver Actions|*.PDAction'
