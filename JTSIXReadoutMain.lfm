@@ -31,7 +31,6 @@ object MainForm: TMainForm
       BevelOuter = bvNone
       ParentBackground = False
       ParentColor = False
-      ParentFont = False
       ParentShowHint = False
       ShowHint = True
       TabOrder = 1
@@ -48,7 +47,6 @@ object MainForm: TMainForm
       EditLabel.Caption = 'Connected Port'
       EditLabel.ParentColor = False
       EditLabel.ParentFont = False
-      ParentFont = False
       ParentShowHint = False
       ReadOnly = True
       TabOrder = 0
@@ -65,7 +63,6 @@ object MainForm: TMainForm
       EditLabel.Caption = 'Start Time'
       EditLabel.ParentColor = False
       EditLabel.ParentFont = False
-      ParentFont = False
       ParentShowHint = False
       ReadOnly = True
       ShowHint = True
@@ -82,7 +79,6 @@ object MainForm: TMainForm
       EditLabel.Caption = 'Stop Time'
       EditLabel.ParentColor = False
       EditLabel.ParentFont = False
-      ParentFont = False
       ParentShowHint = False
       ReadOnly = True
       ShowHint = True
@@ -159,7 +155,6 @@ object MainForm: TMainForm
     Caption = 'Sensor Definition File'
     ClientHeight = 88
     ClientWidth = 124
-    ParentShowHint = False
     TabOrder = 2
     object LoadDefBB: TBitBtn
       Left = 6
