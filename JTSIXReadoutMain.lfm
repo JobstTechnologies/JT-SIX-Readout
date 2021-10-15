@@ -223,7 +223,7 @@ object MainForm: TMainForm
   end
   object ReadTimer: TTimer
     Enabled = False
-    Interval = 1700
+    Interval = 1710
     OnTimer = ReadTimerTimerFinished
     Left = 176
     Top = 184

@@ -339,7 +339,7 @@ begin
   // if we get 3 times the same error, something is wrong and we must stop
   if ErrorCount < 4 then
   begin
-   lastInterval:= lastInterval + 0.02833; // in min, every 1700 ms we get new bytes
+   lastInterval:= lastInterval + ReadTimer.Interval / 60000;
    timeCounter:= timeCounter + lastInterval;
    exit;
   end
@@ -393,7 +393,7 @@ begin
   // SIX and we must stop
   if ErrorCount < 4 then
   begin
-   lastInterval:= lastInterval + 0.02833; // in min, every 1700 ms we get new bytes
+   lastInterval:= lastInterval + ReadTimer.Interval / 60000;
    timeCounter:= timeCounter + lastInterval;
    exit;
   end
@@ -426,7 +426,7 @@ begin
  if PintegerArray^[1] <> dataArray[StopPos - 1] then
  begin
   // the data are corrupted so wait for another timer run
-  lastInterval:= lastInterval + 0.02833; // in min, every 1700 ms we get new bytes
+  lastInterval:= lastInterval + ReadTimer.Interval / 60000;
   timeCounter:= timeCounter + lastInterval;
   exit;
  end;
@@ -767,7 +767,7 @@ begin
 
  // we can now set the timer interval,
  // which is fixed to the 1.7 s cycle of the SIX
- ReadTimer.Interval:= 1700; // in ms
+ ReadTimer.Interval:= 1710; // in ms, we add 1 ms to avoid timer issues
  ReadTimer.Enabled:= true;
  DelayReadCounter:= 0; // for the case there was a previous run
 
