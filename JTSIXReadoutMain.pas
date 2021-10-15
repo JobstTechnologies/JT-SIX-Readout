@@ -57,7 +57,7 @@ type
 
 var
   MainForm : TMainForm;
-  Version : string = '1.02';
+  Version : string = '1.03';
   serSensor: TBlockSerial;
   timeCounter : double = 0.0; // counter of the overall SIX signal time in min
   signalCounter : integer = 0; // counter of the overall SIX readouts
@@ -193,7 +193,7 @@ type intArray = array[1..4] of byte;
      PintArray = ^intArray;
 var
  OutLine : string;
- temperature : double;
+ temperature, lastInterval : double;
  i, k, StopPos: integer;
  MousePointer : TPoint;
  dataArray : array[0..24] of byte;
@@ -206,23 +206,24 @@ var
  wasRead : Boolean = false;
  SingleByte : byte;
 begin
- // say the OS the application is alive
+ // tell the OS the application is alive
  Application.ProcessMessages;
 
  // initialize
  MousePointer:= Mouse.CursorPos;
+ lastInterval:= 0.0;
  for i:= 0 to 8 do
   ChanDbl[i]:= 0.0;
 
  // first check if we still have a filestream
  if not HaveSensorFileStream then
  begin
-  ReadTimer.Enabled:= False;
-  MessageDlgPos('The connection to the data file was lost!'
-   + LineEnding + 'To restart you must again click on the Start button',
+  ReadTimer.Enabled:= false;
+  MessageDlgPos('The connection to the data file was lost!' + LineEnding
+    + 'To restart you must again click on the Start button',
    mtError, [mbOK], 0, MousePointer.X, MousePointer.Y);
   ConnComPortSensLE.Color:= clRed;
-  IndicatorSensorP.Caption:= 'Wrong device';
+  IndicatorSensorP.Caption:= 'Connection lost';
   IndicatorSensorP.Color:= clRed;
   // disable all buttons
   StartButtonBB.Enabled:= false;
@@ -239,14 +240,14 @@ begin
   begin
    SingleByte:= $1;
    i:= 0;
-   // look for a stp byte in the next 100 bytes
+   // look for a stop byte in the next 100 bytes
    while (SingleByte <> $16) and (i < 101) do
    begin
     SingleByte:= serSensor.RecvByte(100);
     inc(i);
    end;
    wasNoStopByte:= false;
-   if i > 100 then // no stopy byte within 100 bytes, so there is a severe problem
+   if i > 100 then // no stop byte within 100 bytes, so there is a severe problem
    begin
     ReadTimer.Enabled:= False;
     MessageDlgPos('The received last 100 bytes do not contain a stop bit.'
@@ -264,13 +265,15 @@ begin
   end;
 
   // check if there are 25 bytes available to be read
-  // if not wait until the timer finished the next time
-  if serSensor.WaitingDataEx < 25 then
+  // if not wait another 100 ms until the timer finished the next time
+  while serSensor.WaitingDataEx < 25 do
   begin
-   // take the time passed until the timer was triggered
-   timeCounter:= timeCounter + 0.02833; // 1.7 s of the timer in min
+   delay(100);
+   lastInterval:= lastInterval + 0.00166; // 100 ms of the delay in min
    inc(DelayReadCounter);
-   if DelayReadCounter > 2 then // we reached 5.1 seconds, so there is something wrong
+   if DelayReadCounter > 52 then
+   // we reached 3 times the 1.7 s SIX output cycle, so there is something wrong
+   // this will for example occur if USB cable was removed
    begin
     // often the SIX only stops telling it has not enough data
     // to try to read data
@@ -281,14 +284,15 @@ begin
      if k <> 25 then
      begin
       ReadTimer.Enabled:= false;
-      MessageDlgPos('Error: ' + ConnComPortSensLE.Text +
-       ' did not deliver data within 5.1 s.',
+      MessageDlgPos('Error: ' + ConnComPortSensLE.Text
+       + ' did not deliver data within 5.1 s.' + LineEnding
+       + ' Check the USB cable for a loose contact.',
        mtError, [mbOK], 0, MousePointer.X, MousePointer.Y);
-      ReadTimer.Enabled:= false;
       ConnComPortSensLE.Color:= clRed;
       IndicatorSensorP.Caption:= 'SIX error';
       IndicatorSensorP.Color:= clRed;
       StartButtonBB.Enabled:= true;
+      StopButtonBB.Enabled:= false;
       CloseLazSerialConn(MousePointer);
       HaveSerialSensor:= False;
       exit;
@@ -296,15 +300,22 @@ begin
      DelayReadCounter:= 0;
     end;
    end;
-   if not wasRead then
-    exit;
+   if wasRead then
+    break;
   end;
  finally
-  if serSensor.LastError <> 0 then // occurs of USB cable was removed
+  if serSensor.LastError <> 0 then // can occur if USB cable was removed
   begin
+   // Skip further error messages when there was already an error and thus
+   // the timer is already stopped. This happens when the user pulled the
+   // USB cable out while the SIX was running.
+   if ReadTimer.Enabled = false then
+    exit;
    ReadTimer.Enabled:= False;
-   MessageDlgPos(ConnComPortSensLE.Text + ' error on connecting to SIX: '
-    + serSensor.LastErrorDesc, mtError, [mbOK], 0, MousePointer.X, MousePointer.Y);
+   MessageDlgPos(ConnComPortSensLE.Text
+    + ' error on connecting to SIX: ' + serSensor.LastErrorDesc + LineEnding
+    + 'Check the USB cable for a loose contact.', mtError, [mbOK], 0,
+    MousePointer.X, MousePointer.Y);
    ConnComPortSensLE.Color:= clRed;
    IndicatorSensorP.Caption:= 'Check USB cable';
    IndicatorSensorP.Color:= clRed;
@@ -328,7 +339,8 @@ begin
   // if we get 3 times the same error, something is wrong and we must stop
   if ErrorCount < 4 then
   begin
-   timeCounter:= timeCounter + 0.02833; // 1.7 s of the timer in min
+   lastInterval:= lastInterval + 0.02833; // in min, every 1700 ms we get new bytes
+   timeCounter:= timeCounter + lastInterval;
    exit;
   end
   else
@@ -339,10 +351,11 @@ begin
      + serSensor.LastErrorDesc, mtError, [mbOK], 0, MousePointer.X, MousePointer.Y)
    else
     MessageDlgPos('Error: Could not read 25 bytes. Got only ' + IntToStr(k) + ' bytes.',
-    mtError, [mbOK], 0, MousePointer.X, MousePointer.Y);
+     mtError, [mbOK], 0, MousePointer.X, MousePointer.Y);
    ConnComPortSensLE.Color:= clRed;
    IndicatorSensorP.Caption:= 'SIX error';
    IndicatorSensorP.Color:= clRed;
+   // disable all buttons
    StartButtonBB.Enabled:= true;
    StopButtonBB.Enabled:= false;
    CloseLazSerialConn(MousePointer);
@@ -353,12 +366,18 @@ begin
 
  // now search the byte array for the stop bit
  StopPos:= -1;
- for i:= 0 to 24 do
+ // since a value byte can also have the value $16, we search backwards
+ // and check that the byte 20 positions earlier has the value $4 (begin of
+ // a data block)
+ for i:= 24 downto 20 do
  begin
   if dataArray[i] = $16 then
   begin
-   StopPos:= i;
-   break;
+   if dataArray[i - 20] = $4 then
+   begin
+    StopPos:= i;
+    break;
+   end;
   end;
  end;
  if StopPos = -1 then
@@ -367,14 +386,15 @@ begin
   // the read data block sometimes misses the stop bit
   // usually the stop bit appears again within the next readout, but not at the
   // expected position
-  // to re-sync then with the SIX, wait one interval and read out all byte by
+  // to re-sync then with the SIX, wait one interval and read out byte by
   // byte until a stop byte appears
   wasNoStopByte:= true;
   // however, if we cannot re-sync after 3 attempts, something is wrong with the
   // SIX and we must stop
   if ErrorCount < 4 then
   begin
-   timeCounter:= timeCounter + 0.02833; // 1.7 s of the timer in min
+   lastInterval:= lastInterval + 0.02833; // in min, every 1700 ms we get new bytes
+   timeCounter:= timeCounter + lastInterval;
    exit;
   end
   else
@@ -397,38 +417,33 @@ begin
  // reset counter since we got no error
  ErrorCount:= 0;
 
- // if StopPos > 19 we have all relevant data before
- // so transform the dataArray accordingly
- if StopPos > 19 then
+ // we have all relevant data before the stop bit
+ // first calculate the checksum
+ checksum:= dataArray[StopPos - 2];
+ for i:= StopPos - 3 downto StopPos - 20 do
+  checksum:= checksum + dataArray[i];
+ PintegerArray:= PintArray(@checksum);
+ if PintegerArray^[1] <> dataArray[StopPos - 1] then
  begin
-  // checksum
-  checksum:= dataArray[StopPos-2];
-  for i:= StopPos-3 downto StopPos-20 do
-   checksum:= checksum + dataArray[i];
-  PintegerArray:= PintArray(@checksum);
-  if PintegerArray^[1] <> dataArray[StopPos-1] then
-  begin
-   // the data are corrupted to wait for another timer run
-   timeCounter:= timeCounter + 0.02833; // 1.7 s of the timer in min
-   exit;
-  end;
-  // transform the dataArray so that zero gets the first value byte
-  for i := 0 to 18 do
-   dataArray[i]:= dataArray[StopPos - 19 + i];
- end
- else // there are not enough data so we have to wait and read new data
- begin
-  timeCounter:= timeCounter + 0.02833; // 1.7 s of the timer in min
+  // the data are corrupted so wait for another timer run
+  lastInterval:= lastInterval + 0.02833; // in min, every 1700 ms we get new bytes
+  timeCounter:= timeCounter + lastInterval;
   exit;
  end;
+ // transform the dataArray so that zero array position gets the first value byte
+ for i := 0 to 18 do
+  dataArray[i]:= dataArray[StopPos - 19 + i];
 
  // create now a string with the line we will write to the file
  // first the time and counter
  inc(signalCounter);
  OutLine:= IntToStr(signalCounter) + #9;
  // take the time passed until the timer was triggered
- timeCounter:= timeCounter + 0.02833; // 1.7 of the timer in min
-
+ lastInterval:= lastInterval + ReadTimer.Interval / 60000; // in min
+ if signalCounter > 1 then
+  timeCounter:= timeCounter + lastInterval // in min
+ else
+  timeCounter:= 0.0; // assures the first data point has time zero
  OutLine:= OutLine + FloatToStrF(timeCounter, ffFixed, 3, 3) + #9;
 
  // now the channels
