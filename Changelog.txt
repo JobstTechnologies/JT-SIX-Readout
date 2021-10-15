@@ -2,7 +2,7 @@ Changes
 
 from version 1.02 to 1.03
 
-improvement:
+bugfix:
 - fix bug on calculating sensor value from readout data
 
 
