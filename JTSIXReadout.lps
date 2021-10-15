@@ -1,0 +1,319 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CONFIG>
+  <ProjectSession>
+    <PathDelim Value="\"/>
+    <Version Value="11"/>
+    <BuildModes Active="Release"/>
+    <Units Count="21">
+      <Unit0>
+        <Filename Value="JTSIXReadout.lpr"/>
+        <IsPartOfProject Value="True"/>
+        <UsageCount Value="59"/>
+      </Unit0>
+      <Unit1>
+        <Filename Value="JTSIXReadoutMain.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="MainForm"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Form"/>
+        <IsVisibleTab Value="True"/>
+        <TopLine Value="267"/>
+        <CursorPos X="55" Y="287"/>
+        <ComponentState Value="1"/>
+        <UsageCount Value="59"/>
+        <Loaded Value="True"/>
+        <LoadedDesigner Value="True"/>
+      </Unit1>
+      <Unit2>
+        <Filename Value="serialusbselection.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="SerialUSBSelectionF"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Form"/>
+        <UnitName Value="SerialUSBSelection"/>
+        <EditorIndex Value="2"/>
+        <CursorPos X="31" Y="20"/>
+        <UsageCount Value="200"/>
+        <Loaded Value="True"/>
+        <LoadedDesigner Value="True"/>
+      </Unit2>
+      <Unit3>
+        <Filename Value="aboutform.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="AboutFormF"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Form"/>
+        <UnitName Value="AboutForm"/>
+        <EditorIndex Value="1"/>
+        <TopLine Value="5"/>
+        <CursorPos X="41" Y="19"/>
+        <UsageCount Value="57"/>
+        <Loaded Value="True"/>
+      </Unit3>
+      <Unit4>
+        <Filename Value="pumpcontrolunit.pas"/>
+        <UnitName Value="PumpControlUnit"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="12"/>
+        <CursorPos X="33" Y="15"/>
+        <UsageCount Value="92"/>
+      </Unit4>
+      <Unit5>
+        <Filename Value="SIXControlUnit.pas"/>
+        <HasResources Value="True"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="4"/>
+        <CursorPos Y="19"/>
+        <UsageCount Value="86"/>
+      </Unit5>
+      <Unit6>
+        <Filename Value="namesetting.pas"/>
+        <ComponentName Value="NameSettingF"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Form"/>
+        <UnitName Value="NameSetting"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="3"/>
+        <CursorPos X="15" Y="27"/>
+        <UsageCount Value="198"/>
+      </Unit6>
+      <Unit7>
+        <Filename Value="fitting.pas"/>
+        <ComponentName Value="FitForm"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Form"/>
+        <UnitName Value="Fitting"/>
+        <EditorIndex Value="-1"/>
+        <CursorPos X="66" Y="8"/>
+        <UsageCount Value="436"/>
+      </Unit7>
+      <Unit8>
+        <Filename Value="JTDriverSensing.lpr"/>
+        <EditorIndex Value="-1"/>
+        <CursorPos X="42" Y="17"/>
+        <UsageCount Value="90"/>
+      </Unit8>
+      <Unit9>
+        <Filename Value="JTDriverSensingMain.pas"/>
+        <ComponentName Value="MainForm"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Form"/>
+        <EditorIndex Value="-1"/>
+        <CursorPos X="48" Y="603"/>
+        <FoldState Value=" T7IE#kT T3vV0E1 pm2mK0_334817g"/>
+        <UsageCount Value="90"/>
+      </Unit9>
+      <Unit10>
+        <Filename Value="biomonparseunit.pas"/>
+        <ComponentName Value="MainF"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Form"/>
+        <UnitName Value="SIXControlUnit"/>
+        <EditorIndex Value="-1"/>
+        <CursorPos X="28" Y="3"/>
+        <UsageCount Value="199"/>
+      </Unit10>
+      <Unit11>
+        <Filename Value="JTPumpDriver2.lpr"/>
+        <EditorIndex Value="-1"/>
+        <CursorPos X="59" Y="26"/>
+        <UsageCount Value="192"/>
+      </Unit11>
+      <Unit12>
+        <Filename Value="jtpumpdrivermain2.pas"/>
+        <ComponentName Value="MainForm"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Form"/>
+        <UnitName Value="JTPumpDriverMain2"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="307"/>
+        <CursorPos X="15" Y="340"/>
+        <UsageCount Value="192"/>
+      </Unit12>
+      <Unit13>
+        <Filename Value="biomonparseunit.lfm"/>
+        <EditorIndex Value="-1"/>
+        <UsageCount Value="52"/>
+        <DefaultSyntaxHighlighter Value="LFM"/>
+      </Unit13>
+      <Unit14>
+        <Filename Value="C:\lazarus\lcl\customtimer.pas"/>
+        <UnitName Value="CustomTimer"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="136"/>
+        <CursorPos Y="151"/>
+        <UsageCount Value="15"/>
+      </Unit14>
+      <Unit15>
+        <Filename Value="C:\lazarus\lcl\include\customcontrol.inc"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="53"/>
+        <CursorPos Y="75"/>
+        <UsageCount Value="8"/>
+      </Unit15>
+      <Unit16>
+        <Filename Value="C:\Users\USti\AppData\Local\lazarus\onlinepackagemanager\packages\synapse40.1\synaser.pas"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="1815"/>
+        <CursorPos X="23" Y="1837"/>
+        <UsageCount Value="6"/>
+      </Unit16>
+      <Unit17>
+        <Filename Value="C:\LazarusDev\lazarus\lcl\include\menuitem.inc"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="283"/>
+        <CursorPos X="39" Y="296"/>
+        <UsageCount Value="4"/>
+      </Unit17>
+      <Unit18>
+        <Filename Value="C:\LazarusDev\lazarus\components\tachart\tacustomsource.pas"/>
+        <UnitName Value="TACustomSource"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="1784"/>
+        <CursorPos Y="1804"/>
+        <UsageCount Value="8"/>
+      </Unit18>
+      <Unit19>
+        <Filename Value="C:\LazarusDev\lazarus\components\tachart\tasources.pas"/>
+        <UnitName Value="TASources"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="573"/>
+        <CursorPos Y="593"/>
+        <UsageCount Value="8"/>
+      </Unit19>
+      <Unit20>
+        <Filename Value="C:\fpcupdeluxe\lazarus\lcl\include\promptdialog.inc"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="557"/>
+        <CursorPos Y="579"/>
+        <UsageCount Value="9"/>
+      </Unit20>
+    </Units>
+    <JumpHistory Count="30" HistoryIndex="29">
+      <Position1>
+        <Filename Value="JTSIXReadoutMain.pas"/>
+        <Caret Line="133" Column="21" TopLine="99"/>
+      </Position1>
+      <Position2>
+        <Filename Value="JTSIXReadoutMain.pas"/>
+        <Caret Line="141" Column="21" TopLine="99"/>
+      </Position2>
+      <Position3>
+        <Filename Value="JTSIXReadoutMain.pas"/>
+        <Caret Line="193" Column="21" TopLine="190"/>
+      </Position3>
+      <Position4>
+        <Filename Value="JTSIXReadoutMain.pas"/>
+        <Caret Line="502" Column="21" TopLine="482"/>
+      </Position4>
+      <Position5>
+        <Filename Value="JTSIXReadoutMain.pas"/>
+        <Caret Line="782" Column="31" TopLine="754"/>
+      </Position5>
+      <Position6>
+        <Filename Value="JTSIXReadoutMain.pas"/>
+        <Caret Line="795" Column="21" TopLine="762"/>
+      </Position6>
+      <Position7>
+        <Filename Value="JTSIXReadoutMain.pas"/>
+        <Caret Line="793" Column="39" TopLine="771"/>
+      </Position7>
+      <Position8>
+        <Filename Value="JTSIXReadoutMain.pas"/>
+        <Caret Line="108" Column="25" TopLine="85"/>
+      </Position8>
+      <Position9>
+        <Filename Value="JTSIXReadoutMain.pas"/>
+        <Caret Line="10" Column="26"/>
+      </Position9>
+      <Position10>
+        <Filename Value="JTSIXReadoutMain.pas"/>
+        <Caret Line="64" TopLine="44"/>
+      </Position10>
+      <Position11>
+        <Filename Value="JTSIXReadoutMain.pas"/>
+        <Caret Line="195" Column="6" TopLine="175"/>
+      </Position11>
+      <Position12>
+        <Filename Value="JTSIXReadoutMain.pas"/>
+        <Caret Line="211" Column="10" TopLine="208"/>
+      </Position12>
+      <Position13>
+        <Filename Value="JTSIXReadoutMain.pas"/>
+        <Caret Line="257" Column="9" TopLine="239"/>
+      </Position13>
+      <Position14>
+        <Filename Value="JTSIXReadoutMain.pas"/>
+        <Caret Line="279" Column="11" TopLine="273"/>
+      </Position14>
+      <Position15>
+        <Filename Value="JTSIXReadoutMain.pas"/>
+        <Caret Line="306" Column="8" TopLine="293"/>
+      </Position15>
+      <Position16>
+        <Filename Value="JTSIXReadoutMain.pas"/>
+        <Caret Line="344" Column="10" TopLine="335"/>
+      </Position16>
+      <Position17>
+        <Filename Value="JTSIXReadoutMain.pas"/>
+        <Caret Line="408" Column="9" TopLine="398"/>
+      </Position17>
+      <Position18>
+        <Filename Value="JTSIXReadoutMain.pas"/>
+        <Caret Line="451" Column="15" TopLine="438"/>
+      </Position18>
+      <Position19>
+        <Filename Value="JTSIXReadoutMain.pas"/>
+        <Caret Line="442" Column="10" TopLine="438"/>
+      </Position19>
+      <Position20>
+        <Filename Value="JTSIXReadoutMain.pas"/>
+        <Caret Line="231" Column="29" TopLine="228"/>
+      </Position20>
+      <Position21>
+        <Filename Value="JTSIXReadoutMain.pas"/>
+        <Caret Line="463" Column="44" TopLine="470"/>
+      </Position21>
+      <Position22>
+        <Filename Value="JTSIXReadoutMain.pas"/>
+        <Caret Line="216" Column="22" TopLine="203"/>
+      </Position22>
+      <Position23>
+        <Filename Value="JTSIXReadoutMain.pas"/>
+        <Caret Line="271" TopLine="246"/>
+      </Position23>
+      <Position24>
+        <Filename Value="JTSIXReadoutMain.pas"/>
+        <Caret Line="333" Column="16" TopLine="306"/>
+      </Position24>
+      <Position25>
+        <Filename Value="JTSIXReadoutMain.pas"/>
+        <Caret Line="390" Column="16" TopLine="359"/>
+      </Position25>
+      <Position26>
+        <Filename Value="JTSIXReadoutMain.pas"/>
+        <Caret Line="422" Column="9" TopLine="391"/>
+      </Position26>
+      <Position27>
+        <Filename Value="JTSIXReadoutMain.pas"/>
+        <Caret Line="235" Column="32" TopLine="223"/>
+      </Position27>
+      <Position28>
+        <Filename Value="JTSIXReadoutMain.pas"/>
+        <Caret Line="214" Column="21" TopLine="190"/>
+      </Position28>
+      <Position29>
+        <Filename Value="JTSIXReadoutMain.pas"/>
+        <Caret Line="416" Column="14" TopLine="401"/>
+      </Position29>
+      <Position30>
+        <Filename Value="JTSIXReadoutMain.pas"/>
+        <Caret Line="288" Column="12" TopLine="267"/>
+      </Position30>
+    </JumpHistory>
+    <RunParams>
+      <FormatVersion Value="2"/>
+      <Modes Count="0" ActiveMode=""/>
+    </RunParams>
+  </ProjectSession>
+</CONFIG>
