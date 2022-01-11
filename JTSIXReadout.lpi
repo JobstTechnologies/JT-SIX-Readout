@@ -1,11 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CONFIG>
   <ProjectOptions>
-    <Version Value="11"/>
+    <Version Value="12"/>
     <PathDelim Value="\"/>
     <General>
+      <Flags>
+        <CompatibilityMode Value="True"/>
+      </Flags>
       <SessionStorage Value="InProjectDir"/>
-      <MainUnit Value="0"/>
       <Title Value="JT SIX Readout"/>
       <Scaled Value="True"/>
       <ResourceType Value="res"/>
@@ -20,9 +22,9 @@
     <VersionInfo>
       <UseVersionInfo Value="True"/>
       <MajorVersionNr Value="1"/>
-      <RevisionNr Value="3"/>
+      <MinorVersionNr Value="1"/>
       <Attributes pvaPreRelease="True"/>
-      <StringTable CompanyName="Jobst Technologies" FileDescription="Program to read out sensor values from the SIX device" LegalCopyright="Jobst Technologies GmbH" ProductName="JT SIX Readout" ProductVersion="1.03"/>
+      <StringTable CompanyName="Jobst Technologies" FileDescription="Program to read out sensor values from the SIX device" LegalCopyright="Jobst Technologies GmbH" ProductName="JT SIX Readout" ProductVersion="1.10"/>
     </VersionInfo>
     <BuildModes Count="3">
       <Item1 Name="Default" Default="True"/>
@@ -31,7 +33,7 @@
           <Version Value="11"/>
           <PathDelim Value="\"/>
           <Target>
-            <Filename Value="JTSIXReadout-1-0-debug"/>
+            <Filename Value="JTSIXReadout-1-1-debug"/>
           </Target>
           <SearchPaths>
             <IncludeFiles Value="$(ProjOutDir)"/>
@@ -76,7 +78,7 @@
           <Version Value="11"/>
           <PathDelim Value="\"/>
           <Target>
-            <Filename Value="JTSIXReadout-1-0"/>
+            <Filename Value="JTSIXReadout-1-1"/>
           </Target>
           <SearchPaths>
             <IncludeFiles Value="$(ProjOutDir)"/>
@@ -108,7 +110,6 @@
     </PublishOptions>
     <RunParams>
       <FormatVersion Value="2"/>
-      <Modes Count="0"/>
     </RunParams>
     <RequiredPackages Count="2">
       <Item1>

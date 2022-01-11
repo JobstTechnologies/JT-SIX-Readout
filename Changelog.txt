@@ -1,5 +1,15 @@
 Changes
 
+from version 1.03 to 1.10
+
+improvement:
+- add feature to specify the data readout time
+
+compilation:
+- Win32 builds are now available
+- since this release at least Lazarus 2.2 is necessary to compile
+
+
 from version 1.02 to 1.03
 
 bugfix:

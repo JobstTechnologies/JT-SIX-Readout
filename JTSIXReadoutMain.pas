@@ -7,7 +7,7 @@ interface
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, ComCtrls, Menus,
   StdCtrls, ExtCtrls, Buttons, LCLType, Registry, LazFileUtils,
-  SynaSer, Crt, UITypes, Types, Streamex,
+  SynaSer, Crt, Types, Streamex, Spin,
   // the custom forms
   SerialUSBSelection, AboutForm;
 
@@ -17,6 +17,9 @@ type
 
   TMainForm = class(TForm)
     DefinitionGB: TGroupBox;
+    EvalTimeFSE: TFloatSpinEdit;
+    TimeGB: TGroupBox;
+    LabelEvalTime: TLabel;
     LoadedDefFileLE: TLabeledEdit;
     LoadDefBB: TBitBtn;
     OpenDialog: TOpenDialog;
@@ -36,6 +39,7 @@ type
     AboutMI: TMenuItem;
     MainMenu: TMainMenu;
     procedure AboutMIClick(Sender: TObject);
+    procedure EvalTimeFSEChange(Sender: TObject);
     procedure FormDropFiles(Sender: TObject; const FileNames: array of String);
     procedure LoadDefBBClick(Sender: TObject);
     procedure ReadTimerTimerFinished(Sender: TObject);
@@ -57,7 +61,7 @@ type
 
 var
   MainForm : TMainForm;
-  Version : string = '1.03';
+  Version : string = '1.10';
   serSensor: TBlockSerial;
   timeCounter : double = 0.0; // counter of the overall SIX signal time in min
   signalCounter : integer = 0; // counter of the overall SIX readouts
@@ -77,6 +81,7 @@ var
   NumChannels : integer = 6; // number of channels
   ErrorCount : integer = 0; // counts how many times we did not reeive a stop bit
   wasNoStopByte : Boolean = false; // to catch the case no stop byte was sent
+  evalTimeChanged : Boolean; // true if user changed evaluation time
 
 implementation
 
@@ -92,6 +97,7 @@ begin
  LoadedFileSensM.Text:= 'None';
 
  ActiveControl:= StartButtonBB;
+ evalTimeChanged:= false;
 end;
 
 procedure TMainForm.FormClose(Sender: TObject);
@@ -134,6 +140,11 @@ begin
  AboutFormF.VersionNumber.Caption:= Version;
  // open the dialog
  AboutFormF.ShowModal;
+end;
+
+procedure TMainForm.EvalTimeFSEChange(Sender: TObject);
+begin
+ evalTimeChanged:= true;
 end;
 
 procedure TMainForm.LoadDefBBClick(Sender: TObject);
@@ -445,6 +456,9 @@ begin
  else
   timeCounter:= 0.0; // assures the first data point has time zero
  OutLine:= OutLine + FloatToStrF(timeCounter, ffFixed, 3, 3) + #9;
+ // check if user meanwhile changed the time
+ if evalTimeChanged then
+  ReadTimer.Interval:= Trunc(EvalTimeFSE.Value * 1000); // in ms;
 
  // now the channels
  // first convert each 2 bytes to a signed 16 bit integer
@@ -524,9 +538,6 @@ var
 begin
  // initialize
  MousePointer:= Mouse.CursorPos;
- DelayReadCounter:= 0;
- timeCounter:= 0.0;
- signalCounter:= 0;
 
  // determine all possible COM ports
  Reg:= TRegistry.Create;
@@ -765,10 +776,13 @@ begin
    GainsRaw[i]:= 0.0763;
  end;
 
- // we can now set the timer interval,
- // which is fixed to the 1.7 s cycle of the SIX
- ReadTimer.Interval:= 1710; // in ms, we add 1 ms to avoid timer issues
+ // we can now set the timer interval
+ ReadTimer.Interval:= Trunc(EvalTimeFSE.Value * 1000); // in ms
  ReadTimer.Enabled:= true;
+
+ // start the counters
+ timeCounter:= 0.0;
+ signalCounter:= 0;
  DelayReadCounter:= 0; // for the case there was a previous run
 
 end;
