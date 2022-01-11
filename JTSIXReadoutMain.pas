@@ -164,6 +164,7 @@ begin
    IndicatorSensorP.Color:= clDefault;
    IndicatorSensorP.Caption:= '';
    LoadedDefFileLE.Text:= 'None';
+   LoadedDefFileLE.ShowHint:= false;
    LoadedDefFileLE.Color:= clDefault;
    exit;
   end;
@@ -183,14 +184,18 @@ begin
    mtError, [mbOK], 0, MousePointer.X, MousePointer.Y);
    IndicatorSensorP.Color:= clRed;
    IndicatorSensorP.Caption:= 'No definition file loaded';
-   LoadedDefFileLE.Color:= clDefault;
    LoadedDefFileLE.Text:= 'None';
+   LoadedDefFileLE.ShowHint:= false;
+   LoadedDefFileLE.Color:= clDefault;
    exit;
   end;
 
   // display file name without suffix
   DummyString:= ExtractFileName(InNameDef);
   SetLength(DummyString, Length(DummyString) - 4);
+  // show full path as tooltip
+  LoadedDefFileLE.ShowHint:= true;
+  LoadedDefFileLE.Hint:= InNameDef;
   LoadedDefFileLE.Text:= DummyString;
   LoadedDefFileLE.Color:= clActiveCaption;
 
@@ -760,7 +765,10 @@ begin
  // final UI settings
  LoadedFileSensM.Text:= ExtractFileNameOnly(InNameSensor);
  LoadedFileSensM.Color:= clActiveCaption;
- LoadedFileSensM.Hint:= LoadedFileSensM.Text;
+ // show the full path as tooltip
+ LoadedFileSensM.Hint:= InNameSensor;
+ HaveSensorFileStream:= true;
+
  StopButtonBB.Enabled:= true;
  // the user must not change these things while it is running:
  SIXTypeRG.Enabled:= false;

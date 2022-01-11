@@ -4,6 +4,7 @@ from version 1.03 to 1.10
 
 improvement:
 - add feature to specify the data readout time
+- show full path to loaded files in tooltips
 
 compilation:
 - Win32 builds are now available
