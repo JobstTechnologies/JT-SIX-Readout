@@ -61,7 +61,7 @@ type
 
 var
   MainForm : TMainForm;
-  Version : string = '1.10';
+  Version : string = '1.11';
   serSensor: TBlockSerial;
   timeCounter : double = 0.0; // counter of the overall SIX signal time in min
   signalCounter : integer = 0; // counter of the overall SIX readouts
@@ -207,12 +207,13 @@ end;
 procedure TMainForm.ReadTimerTimerFinished(Sender: TObject);
 type intArray = array[1..4] of byte;
      PintArray = ^intArray;
+     TDataArray = array[0..24] of byte;
 var
  OutLine : string;
  temperature, lastInterval : double;
  i, k, StopPos: integer;
  MousePointer : TPoint;
- dataArray : array[0..24] of byte;
+ dataArray, wasteArray : TDataArray;
  HiLowArray : array[0..1] of byte;
  Chan : array [1..6] of Int16;
  ChanDbl : array [0..8] of double; // start from zero purposely for non-existing subtracts
@@ -345,7 +346,15 @@ begin
 
  // read the data
  if not wasRead then
-  k:= serSensor.RecvBufferEx(@dataArray[0], 25, 100);
+ begin
+   k:= 0;
+   dataArray:= default(TDataArray); // clear array
+   k:= serSensor.RecvBufferEx(@dataArray[0], 25, 100);
+   // Fixme: LineBuffer should not be used at all
+   // empty internal LineBuffer of serSensor
+   while serSensor.WaitingDataEx > 24 do
+    serSensor.RecvBufferEx(@wasteArray[0], 25, 100);
+  end;
 
  // in case the read failed or not 25 bytes received
  if (serSensor.LastError <> 0) or (k <> 25) then

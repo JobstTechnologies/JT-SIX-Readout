@@ -23,8 +23,9 @@
       <UseVersionInfo Value="True"/>
       <MajorVersionNr Value="1"/>
       <MinorVersionNr Value="1"/>
+      <RevisionNr Value="1"/>
       <Attributes pvaPreRelease="True"/>
-      <StringTable CompanyName="Jobst Technologies" FileDescription="Program to read out sensor values from the SIX device" LegalCopyright="Jobst Technologies GmbH" ProductName="JT SIX Readout" ProductVersion="1.10"/>
+      <StringTable CompanyName="Jobst Technologies" FileDescription="Program to read out sensor values from the SIX device" LegalCopyright="Jobst Technologies GmbH" ProductName="JT SIX Readout" ProductVersion="1.11"/>
     </VersionInfo>
     <BuildModes Count="3">
       <Item1 Name="Default" Default="True"/>
