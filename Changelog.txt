@@ -2,7 +2,7 @@ Changes
 
 from version 1.10 to 1.11
 
-bugfixe:
+bugfix:
 - fix buffer overflow for long SIX measurements
 
 
