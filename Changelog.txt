@@ -1,5 +1,12 @@
 Changes
 
+from version 1.11 to 1.20
+
+improvement:
+- more robust and stable data readout method
+  (improved checks of data delivered by the serial connection etc.)
+
+
 from version 1.10 to 1.11
 
 bugfix:

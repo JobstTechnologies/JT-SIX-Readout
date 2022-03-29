@@ -210,10 +210,12 @@ type intArray = array[1..4] of byte;
      TDataArray = array[0..24] of byte;
 var
  OutLine : string;
+ dataString : AnsiString;
  temperature, lastInterval : double;
  i, k, StopPos: integer;
  MousePointer : TPoint;
- dataArray, wasteArray : TDataArray;
+ dataArray : TDataArray;
+ tempArray : packed array of byte;
  HiLowArray : array[0..1] of byte;
  Chan : array [1..6] of Int16;
  ChanDbl : array [0..8] of double; // start from zero purposely for non-existing subtracts
@@ -344,20 +346,23 @@ begin
   end;
  end;
 
- // read the data
- if not wasRead then
- begin
-   k:= 0;
-   dataArray:= default(TDataArray); // clear array
-   k:= serSensor.RecvBufferEx(@dataArray[0], 25, 100);
-   // Fixme: LineBuffer should not be used at all
-   // empty internal LineBuffer of serSensor
-   while serSensor.WaitingDataEx > 24 do
-    serSensor.RecvBufferEx(@wasteArray[0], 25, 100);
-  end;
+ // will be the case if serSensor.LastError <> 0 since the exit there
+ // only jumps out of the try finally block
+ if not HaveSerialSensor then
+  exit;
+
+  // the are 3 different serial buffers:
+ // - the 25 bytes of the SIX
+ // - the buffer of the OS
+ // - the LineBuffer of the synaser library
+ // since the serial USB connection plug delivers from time to time wrong info
+ // about available date (says there are no data, despite there are), we cannot
+ // rely on the LineBuffer but must reast everything that is in the OS buffer
+ dataString:= '';
+ dataString:= serSensor.RecvPacket(100);
 
  // in case the read failed or not 25 bytes received
- if (serSensor.LastError <> 0) or (k <> 25) then
+ if (serSensor.LastError <> 0) or (Length(dataString) < 25) then
  begin
   inc(ErrorCount);
   // we wait then another timer run
@@ -375,13 +380,14 @@ begin
     MessageDlgPos(ConnComPortSensLE.Text + ' error on reading signal data: '
      + serSensor.LastErrorDesc, mtError, [mbOK], 0, MousePointer.X, MousePointer.Y)
    else
-    MessageDlgPos('Error: Could not read 25 bytes. Got only ' + IntToStr(k) + ' bytes.',
+    MessageDlgPos(
+     'Error: Could not read 25 bytes. Got only ' + IntToStr(Length(dataString)) + ' bytes.',
      mtError, [mbOK], 0, MousePointer.X, MousePointer.Y);
    ConnComPortSensLE.Color:= clRed;
    IndicatorSensorP.Caption:= 'SIX error';
    IndicatorSensorP.Color:= clRed;
    // disable all buttons
-   StartButtonBB.Enabled:= true;
+   StartButtonBB.Enabled:= false;
    StopButtonBB.Enabled:= false;
    CloseLazSerialConn(MousePointer);
    HaveSerialSensor:= False;
@@ -389,20 +395,21 @@ begin
   end;
  end;
 
+ // convert string to a byte array
+ SetLength(tempArray{%H-}, Length(dataString));
+ Move(dataString[1], tempArray[0], Length(dataString));
+
  // now search the byte array for the stop bit
  StopPos:= -1;
  // since a value byte can also have the value $16, we search backwards
  // and check that the byte 20 positions earlier has the value $4 (begin of
  // a data block)
- for i:= 24 downto 20 do
+ for i:= Length(tempArray) - 1 downto Length(tempArray) - 5 do
  begin
-  if dataArray[i] = $16 then
+  if (tempArray[i] = $16) and (tempArray[i - 20] = $4) then
   begin
-   if dataArray[i - 20] = $4 then
-   begin
-    StopPos:= i;
-    break;
-   end;
+   StopPos:= i;
+   break;
   end;
  end;
  if StopPos = -1 then
@@ -441,6 +448,11 @@ begin
 
  // reset counter since we got no error
  ErrorCount:= 0;
+
+ // copy the relevant 25 bytes to the dataArray
+ dataArray:= default(TDataArray); // initialize or clear array
+ Move(tempArray[StopPos - 24], dataArray[0], 25);
+ StopPos:= 24;
 
  // we have all relevant data before the stop bit
  // first calculate the checksum
