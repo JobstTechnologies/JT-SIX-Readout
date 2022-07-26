@@ -12,7 +12,7 @@ object MainForm: TMainForm
   OnClose = FormClose
   OnCreate = FormCreate
   OnDropFiles = FormDropFiles
-  Position = poDefaultPosOnly
+  Position = poDesktopCenter
   LCLVersion = '2.2.2.0'
   object StatusGB: TGroupBox
     Left = 144

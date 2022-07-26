@@ -56,7 +56,7 @@ type
               Buttons: TMsgDlgButtons; AX, AY: Integer): TModalResult;
     function OpenHandling(InName: string; FileExt: string): string;
     function SaveHandling(InName: string; FileExt: string): string;
-    procedure CloseLazSerialConn(MousePointer: TPoint);
+    procedure CloseLazSerialConn;
     function ParseDefFile(InFile: string): Boolean;
 
   end;
@@ -257,7 +257,7 @@ begin
   // disable all buttons
   StartButtonBB.Enabled:= false;
   StopButtonBB.Enabled:= false;
-  CloseLazSerialConn(MousePointer);
+  CloseLazSerialConn;
   HaveSerialSensor:= False;
   exit;
  end;
@@ -287,7 +287,7 @@ begin
     IndicatorSensorP.Color:= clRed;
     StartButtonBB.Enabled:= true;
     StopButtonBB.Enabled:= false;
-    CloseLazSerialConn(MousePointer);
+    CloseLazSerialConn;
     HaveSerialSensor:= False;
     exit;
    end;
@@ -322,7 +322,7 @@ begin
       IndicatorSensorP.Color:= clRed;
       StartButtonBB.Enabled:= true;
       StopButtonBB.Enabled:= false;
-      CloseLazSerialConn(MousePointer);
+      CloseLazSerialConn;
       HaveSerialSensor:= False;
       exit;
      end;
@@ -350,7 +350,7 @@ begin
    IndicatorSensorP.Color:= clRed;
    StartButtonBB.Enabled:= true;
    StopButtonBB.Enabled:= false;
-   CloseLazSerialConn(MousePointer);
+   CloseLazSerialConn;
    HaveSerialSensor:= False;
    exit;
   end;
@@ -399,7 +399,7 @@ begin
    // disable all buttons
    StartButtonBB.Enabled:= false;
    StopButtonBB.Enabled:= false;
-   CloseLazSerialConn(MousePointer);
+   CloseLazSerialConn;
    HaveSerialSensor:= False;
    exit;
   end;
@@ -450,7 +450,7 @@ begin
    IndicatorSensorP.Color:= clRed;
    StartButtonBB.Enabled:= true;
    StopButtonBB.Enabled:= false;
-   CloseLazSerialConn(MousePointer);
+   CloseLazSerialConn;
    HaveSerialSensor:= False;
    exit;
   end;
@@ -546,8 +546,6 @@ begin
 end;
 
 procedure TMainForm.StopButtonBBClick(Sender: TObject);
-var
- MousePointer : TPoint;
 begin
  ReadTimer.Enabled:= False;
  StopTimeLE.Text:= FormatDateTime('dd.mm.yyyy hh:nn:ss', now);
@@ -559,8 +557,7 @@ begin
  LoadDefBB.Enabled:= true;
 
  // close com connection and file stream
- MousePointer:= Mouse.CursorPos; // store mouse position for possible error message
- CloseLazSerialConn(MousePointer);
+ CloseLazSerialConn;
  HaveSerialSensor:= False
 end;
 
@@ -571,7 +568,7 @@ var
  Reg : TRegistry;
  i, k : integer;
  MousePointer : TPoint;
- HeaderLine : string;
+ HeaderLine, COMPort : string;
  dataArray : array[0..24] of byte;
 begin
  // initialize
@@ -604,9 +601,14 @@ begin
   else
    SerialUSBPortCB.ItemIndex:= -1;
  end;
+
  // open connection dialog
  SerialUSBSelectionF.ShowModal;
- if (COMPort = 'Ignore') then // user pressed Disconnect
+
+ if SerialUSBSelectionF.ModalResult = mrOK then
+   COMPort:= SerialUSBSelectionF.SerialUSBPortCB.Text;
+
+ if SerialUSBSelectionF.ModalResult = mrNO then // user pressed Cancel
  begin
   ConnComPortSensLE.Text:= 'Not connected';
   ConnComPortSensLE.Color:= clHighlight;
@@ -614,7 +616,7 @@ begin
   IndicatorSensorP.Color:= clDefault;
   if HaveSerialSensor then
   begin
-   CloseLazSerialConn(MousePointer);
+   CloseLazSerialConn;
    HaveSerialSensor:= False;
    IndicatorSensorP.Caption:= 'SIX stopped';
    IndicatorSensorP.Color:= clHighlight;
@@ -624,15 +626,17 @@ begin
   LoadDefBB.Enabled:= true;
   exit;
  end;
- if (COMPort = '') then // user forgot to set a COM port
+ if COMPort = '' then // user set no COM port or canceled
  begin
+  if SerialUSBSelectionF.ModalResult = mrCancel then
+    exit; // nothing needs to be done
   MessageDlgPos('Error: No COM port selected.',
    mtError, [mbOK], 0, MousePointer.X, MousePointer.Y);
   IndicatorSensorP.Caption:= 'Connection failiure';
   IndicatorSensorP.Color:= clRed;
   if HaveSerialSensor then
   begin
-   CloseLazSerialConn(MousePointer);
+   CloseLazSerialConn;
    HaveSerialSensor:= False;
    IndicatorSensorP.Caption:= 'SIX stopped';
    IndicatorSensorP.Color:= clHighlight;
@@ -643,7 +647,7 @@ begin
  try
   if HaveSerialSensor then
   begin
-   CloseLazSerialConn(MousePointer);
+   CloseLazSerialConn;
    HaveSerialSensor:= False;
   end;
   ConnComPortSensLE.Text:= 'Not connected';
@@ -667,7 +671,7 @@ begin
    IndicatorSensorP.Caption:= 'Connection failiure';
    IndicatorSensorP.Color:= clRed;
    ConnComPortSensLE.Color:= clRed;
-   CloseLazSerialConn(MousePointer);
+   CloseLazSerialConn;
    HaveSerialSensor:= False;
    exit;
   end;
@@ -693,7 +697,7 @@ begin
    ConnComPortSensLE.Color:= clRed;
    IndicatorSensorP.Caption:= 'Wrong device';
    IndicatorSensorP.Color:= clRed;
-   CloseLazSerialConn(MousePointer);
+   CloseLazSerialConn;
    HaveSerialSensor:= False;
    exit;
   end;
@@ -710,7 +714,7 @@ begin
   ConnComPortSensLE.Color:= clRed;
   IndicatorSensorP.Caption:= 'Wrong device';
   IndicatorSensorP.Color:= clRed;
-  CloseLazSerialConn(MousePointer);
+  CloseLazSerialConn;
   HaveSerialSensor:= False;
   exit;
  end;
@@ -743,7 +747,7 @@ begin
    ConnComPortSensLE.Color:= clRed;
    IndicatorSensorP.Caption:= 'No file to save';
    IndicatorSensorP.Color:= clRed;
-   CloseLazSerialConn(MousePointer);
+   CloseLazSerialConn;
    HaveSerialSensor:= False;
    exit;
  end;
@@ -799,7 +803,7 @@ begin
  LoadedFileSensM.Text:= ExtractFileNameOnly(InNameSensor);
  LoadedFileSensM.Color:= clActiveCaption;
  Application.Icon.Assign(IconImageGreen.Picture.Icon);
- IndicatorSensorP.Caption:= 'Measurement running';
+ IndicatorSensorP.Caption:= 'Readout running';
  IndicatorSensorP.Color:= clLime;
  // show the full path as tooltip
  LoadedFileSensM.Hint:= InNameSensor;
@@ -835,7 +839,7 @@ begin
 
 end;
 
-procedure TMainForm.CloseLazSerialConn(MousePointer: TPoint);
+procedure TMainForm.CloseLazSerialConn;
 begin
  // stop timer
  ReadTimer.Enabled:= false;
@@ -844,15 +848,6 @@ begin
  begin
   SensorFileStream.Free;
   HaveSensorFileStream:= false;
- end;
- if serSensor.LastError = 9997 then
- begin
-  // we cannot close socket or free when the connection timed out
-  MessageDlgPos('Error: ' + COMPort + ' cannot be closed.',
-  mtError, [mbOK], 0, MousePointer.X, MousePointer.Y);
-  ConnComPortSensLE.Text:= 'Not acessible';
-  ConnComPortSensLE.Color:= clRed;
-  exit;
  end;
  if HaveSerialSensor then
  begin
@@ -865,6 +860,9 @@ begin
  ConnComPortSensLE.Text:= 'Not connected';
  ConnComPortSensLE.Color:= clHighlight;
  StopButtonBB.Enabled:= false;
+ IndicatorSensorP.Caption:= '';
+ IndicatorSensorP.Color:= clDefault;
+ Application.Icon.Assign(IconImageBlue.Picture.Icon);
 end;
 
 procedure TMainForm.FormDropFiles(Sender: TObject;
