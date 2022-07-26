@@ -1,5 +1,14 @@
 Changes
 
+from version 1.20 to 1.30
+
+improvements:
+- when a SIX measurement is running, the application icon changes to green
+  to indicate this
+- avoid comma in creation time output to ease import of resulting CSV file
+- support for SIX deviced with maximal current of 250 or 500 nA
+
+
 from version 1.11 to 1.20
 
 improvement:

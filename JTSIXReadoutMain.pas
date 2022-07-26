@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, ComCtrls, Menus,
-  StdCtrls, ExtCtrls, Buttons, LCLType, Registry, LazFileUtils,
+  StdCtrls, ExtCtrls, Buttons, LCLType, Registry, LazFileUtils, FileInfo,
   SynaSer, Crt, Types, Streamex, Spin,
   // the custom forms
   SerialUSBSelection, AboutForm;
@@ -18,6 +18,8 @@ type
   TMainForm = class(TForm)
     DefinitionGB: TGroupBox;
     EvalTimeFSE: TFloatSpinEdit;
+    IconImageBlue: TImage;
+    IconImageGreen: TImage;
     TimeGB: TGroupBox;
     LabelEvalTime: TLabel;
     LoadedDefFileLE: TLabeledEdit;
@@ -40,7 +42,7 @@ type
     MainMenu: TMainMenu;
     procedure AboutMIClick(Sender: TObject);
     procedure EvalTimeFSEChange(Sender: TObject);
-    procedure FormDropFiles(Sender: TObject; const FileNames: array of String);
+    procedure FormDropFiles(Sender: TObject; const FileNames{%H-}: array of String);
     procedure LoadDefBBClick(Sender: TObject);
     procedure ReadTimerTimerFinished(Sender: TObject);
     procedure FormClose(Sender: TObject);
@@ -61,7 +63,7 @@ type
 
 var
   MainForm : TMainForm;
-  Version : string = '1.11';
+  Version : string = '';
   serSensor: TBlockSerial;
   timeCounter : double = 0.0; // counter of the overall SIX signal time in min
   signalCounter : integer = 0; // counter of the overall SIX readouts
@@ -87,8 +89,16 @@ implementation
 
 {$R *.lfm}
 
-procedure TMainForm.FormCreate(Sender: TObject);
+procedure TMainForm.FormCreate(Sender: TObject);var
+ FileVerInfo: TFileVersionInfo;
 begin
+ try
+  FileVerInfo:= TFileVersionInfo.Create(nil);
+  FileVerInfo.ReadFileInfo;
+  Version:= FileVerInfo.VersionStrings.Values['ProductVersion'];
+ finally
+  FileVerInfo.Free;
+ end;
  MainForm.Caption:= 'JT SIX Readout ' + Version;
  DefaultFormatSettings.DecimalSeparator:= '.'; // we use English numbers
 
@@ -540,8 +550,10 @@ var
  MousePointer : TPoint;
 begin
  ReadTimer.Enabled:= False;
- StopTimeLE.Text:= FormatDateTime('dd.mm.yyyy, hh:nn:ss', now);
+ StopTimeLE.Text:= FormatDateTime('dd.mm.yyyy hh:nn:ss', now);
  IndicatorSensorP.Caption:= 'Readout stopped';
+ IndicatorSensorP.Color:= clDefault;
+ Application.Icon.Assign(IconImageBlue.Picture.Icon);
  SIXTypeRG.Enabled:= true;
  StartButtonBB.Enabled:= true;
  LoadDefBB.Enabled:= true;
@@ -736,7 +748,7 @@ begin
    exit;
  end;
 
- StartTimeLE.Text:= FormatDateTime('dd.mm.yyyy, hh:nn:ss', now);
+ StartTimeLE.Text:= FormatDateTime('dd.mm.yyyy hh:nn:ss', now);
  StopTimeLE.Text:= '';
  // write header lines
  HeaderLine:= 'Created: ' + StartTimeLE.Text + LineEnding;
@@ -786,6 +798,9 @@ begin
  // final UI settings
  LoadedFileSensM.Text:= ExtractFileNameOnly(InNameSensor);
  LoadedFileSensM.Color:= clActiveCaption;
+ Application.Icon.Assign(IconImageGreen.Picture.Icon);
+ IndicatorSensorP.Caption:= 'Measurement running';
+ IndicatorSensorP.Color:= clLime;
  // show the full path as tooltip
  LoadedFileSensM.Hint:= InNameSensor;
  HaveSensorFileStream:= true;
@@ -801,8 +816,12 @@ begin
  begin
   if SIXTypeRG.ItemIndex = 1 then
    GainsRaw[i]:= 0.1526
-  else
-   GainsRaw[i]:= 0.0763;
+  else if SIXTypeRG.ItemIndex = 0 then
+   GainsRaw[i]:= 0.0763
+  else if SIXTypeRG.ItemIndex = 2 then
+   GainsRaw[i]:= 0.763
+  else if SIXTypeRG.ItemIndex = 3 then
+   GainsRaw[i]:= 1.526;
  end;
 
  // we can now set the timer interval
@@ -963,17 +982,22 @@ var
  OpenFileStream : TFileStream;
  LineReader : TStreamReader;
  ReadLine : string;
- i, gainFactor : integer;
+ gainFactor : single;
+ i : integer;
  StringArray : TStringArray;
  ppp : PChar;
 begin
  result:= false;
 
  // check the SIX type
- if SIXTypeRG.ItemIndex = 1 then
+ if MainForm.SIXTypeRG.ItemIndex = 1 then
   gainFactor:= 1
- else
-  gainFactor:= 2;
+ else if MainForm.SIXTypeRG.ItemIndex = 0 then
+  gainFactor:= 0.5
+ else if MainForm.SIXTypeRG.ItemIndex = 2 then
+  gainFactor:= 5
+ else if MainForm.SIXTypeRG.ItemIndex = 3 then
+  gainFactor:= 10;
 
  // open file stream
  try
@@ -991,7 +1015,7 @@ begin
     Result:= false;
     exit;
    end;
-   Gains[i+1]:= Gains[i+1] / gainFactor;
+   Gains[i+1]:= Gains[i+1] * gainFactor;
   end;
 
   // next interesting line is line 4
